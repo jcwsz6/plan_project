@@ -6,4 +6,5 @@ enum PlanType {
   StraightStopOBSType, //停障
   StraightStationType, //停靠站点
   StraightFollowType, //跟车 
+  StraightCrosswalkType, //通过斑马线
 };

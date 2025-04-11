@@ -27,8 +27,8 @@ void CarBase::initCar(const double& pos_x, const double& pos_y, const double& he
     }
 
     void CarBase::updatePmidf() {
-        double x = (plf->x + prf->x) / 2;
-        double y = (plf->y + prf->y) / 2;
+        double x = (plf->x + prf->x) / 2.0;
+        double y = (plf->y + prf->y) / 2.0;
         if (pmidf) {
             pmidf->x = x;
             pmidf->y = y;
@@ -38,8 +38,8 @@ void CarBase::initCar(const double& pos_x, const double& pos_y, const double& he
     }
 
     void CarBase::updatePmidr() {
-        double x = (plr->x + prr->x) / 2;
-        double y = (plr->y + prr->y) / 2;
+        double x = (plr->x + prr->x) / 2.0;
+        double y = (plr->y + prr->y) / 2.0;
         if (pmidr) {
             pmidr->x = x;
             pmidr->y = y;
@@ -49,8 +49,8 @@ void CarBase::initCar(const double& pos_x, const double& pos_y, const double& he
     }
 
     void CarBase::updatePmid() {
-        double x = (plf->x + prr->x) / 2;
-        double y = (plf->y + prr->y) / 2;
+        double x = (plf->x + prr->x) / 2.0;
+        double y = (plf->y + prr->y) / 2.0;
         if (pmid) {
             pmid->x = x;
             pmid->y = y;    
@@ -101,6 +101,9 @@ void CarBase::initCar(const double& pos_x, const double& pos_y, const double& he
         plr->pointMove(speed_x, speed_y);
         prf->pointMove(speed_x, speed_y);
         prr->pointMove(speed_x, speed_y);
+        pmidf->pointMove(speed_x, speed_y);
+        pmidr->pointMove(speed_x, speed_y);
+        pmid->pointMove(speed_x, speed_y);
     }
 
     void CarBase::carTurnStep() {
