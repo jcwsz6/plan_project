@@ -65,7 +65,7 @@ bool StraightStation::planning_process() { // 规划过程
 /* ---------------------------------- 跟车 ---------------------------------- */
 StraightFollow::StraightFollow() {
   road0 = make_unique<RoadNormal>();
-  carObs = make_unique<CarNormal>(SWIDTH / 2.0, SHEIGHT / 2.0, 0.0, 50.0, 100.0);
+  carObs = make_unique<CarNormal>(SWIDTH / 2.0, SHEIGHT / 2.0, 0.0);
   car0 = make_unique<CarNormal>(SWIDTH / 2.0, SHEIGHT - 70.0);
   carObs->speed_y = -2.0;
   car0->speed_y = -5.0;

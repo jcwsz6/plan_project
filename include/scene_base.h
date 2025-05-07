@@ -2,6 +2,11 @@
 #include "car.h"
 #include "road.h"
 
+enum LaneChangeType {
+  singleType, //单移线
+  doubleType, //双移线
+};
+
 /* ---------------------------------- 场景基类 ---------------------------------- */
 class SceneBase {
   public:
@@ -16,6 +21,9 @@ class SceneBase {
     void uniformAccByDis(const double& dis, const double& target_speed_y); //直行，行驶指定的距离时速度达到制定速度，匀加（减）速直线运动
     void uniformAccByTime(const double& target_speed_y, const double& target_time); //直行，在目标时间内达到目标速度，匀加（减）速直线运动
 
+    /* ----------------------------------- 转向 ----------------------------------- */
+    void carTurn(const int& turn_state, const double& R, const double& total_theta); //转向，已知半径和角度， total_theta为正，为累计转向角度
+    void laneChange(const Point& target_point, const int& type, const double& s = 0.0); //变道，单移线或双移线
   public:
     unique_ptr<RoadBase> road0; //道路父类指针
     unique_ptr<CarBase> car0; //车辆父类指针

@@ -30,6 +30,9 @@ public:
 
     void moveStraightStep(); //单帧直行
     void carTurnStep(); //单帧转向
+
+    void updateRinRout(const double& R); //更新四个半径
+    void updateTurnInfo(const int& turn_state, const double& R); //更新转向信息
     
     void updateXYva(); //更新车辆速度及加速度信息
     void updateStraightInfo(); //更新直行信息

@@ -75,3 +75,78 @@ void SceneBase::uniformAccByTime(const double& target_speed_y, const double& tar
 
 	uniformAccBySpeed(target_speed_y);
 }
+
+/* ----------------------------------- 转向 ----------------------------------- */
+void SceneBase::carTurn(const int& turn_state, const double& R, const double& total_theta) {
+	car0->updateTurnInfo(turn_state, R);
+
+	double theta = 0.0;
+	while (theta < total_theta) {
+		theta += fabs(car0->delta_theta);
+		correctAngleError(car0->delta_theta, theta - total_theta); //只有最后一步会进行误差修正
+		car0->carTurnStep();
+		obsMoveStep();
+		showScene();
+	}
+
+	car0->coutInfo();
+}
+
+
+void SceneBase::laneChange(const Point& target_point, const int& type, const double& s) { //变道
+	double dis = car0->pmidr->distanceTo(target_point);
+	Vec2d vec0(dis,car0->pmidr->thetaP + PI / 2.0); // 航向角比坐标系多了90度
+	Vec2d vec(*car0->pmidr, target_point);
+	double L = vec0.crossProd(vec) / dis / 2.0; //横向偏差
+	double H = vec0.dotProd(vec) / dis / 2.0;	//纵向偏差
+	if (fabs(L) < 1e-10) {
+		uniformStraight(car0->pmidr->distanceTo(target_point));
+		return;
+	}
+
+	double R = (pow(L, 2) + pow(H, 2)) / 2.0 / fabs(L); //转向半径
+	double target_theta = asin(H / R); //目标转角
+	double target_delta_theta = fabs(car0->speed / R); //角速度绝对值
+	cout << "dis = " << dis << " L = " << L << " H = " << H << " R = " << R << " target_theta = " << 
+					target_theta << " target_delta_theta = " << target_delta_theta << endl;
+	
+	if (L > 0.0) { //向左变道
+		car0->delta_theta = target_delta_theta;
+		carTurn(TurnDirection::TurnLeft, R, target_theta);
+
+		if (type == singleType) {
+			car0->delta_theta = -target_delta_theta;
+			carTurn(TurnDirection::TurnRight, R, target_theta);
+		} else if (type == doubleType) {
+			car0->delta_theta = -target_delta_theta;
+			carTurn(TurnDirection::TurnRight, R, target_theta);
+
+			uniformStraight(s);
+
+			car0->delta_theta = -target_delta_theta;
+			carTurn(TurnDirection::TurnRight, R, target_theta);
+
+			car0->delta_theta = target_delta_theta;
+			carTurn(TurnDirection::TurnLeft, R, target_theta);
+		}
+	} else if (L < 0.0) { //向右变道
+		car0->delta_theta = -target_delta_theta;
+		carTurn(TurnDirection::TurnRight, R, target_theta);
+
+		if (type == singleType) {
+			car0->delta_theta = target_delta_theta;
+			carTurn(TurnDirection::TurnLeft, R, target_theta);
+		} else if (type == doubleType) {
+			car0->delta_theta = target_delta_theta;
+			carTurn(TurnDirection::TurnLeft, R, target_theta);
+
+			uniformStraight(s);
+
+			car0->delta_theta = target_delta_theta;
+			carTurn(TurnDirection::TurnLeft, R, target_theta);
+
+			car0->delta_theta = -target_delta_theta;
+			carTurn(TurnDirection::TurnRight, R, target_theta);
+		}
+	}
+}

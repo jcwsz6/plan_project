@@ -46,3 +46,21 @@ void RoadCrosswalk::showRoad() {
     i++;
   }
 }
+
+/* ----------------------------------- 双行道 ---------------------------------- */
+
+RoadDoubleLane::RoadDoubleLane(const double& r_width) {
+  Rwidth = r_width;
+  left_boundary = SWIDTH / 2.0 - Rwidth;
+  right_boundary = SWIDTH / 2.0 + Rwidth;
+}
+
+void RoadDoubleLane::showRoad() {
+  setlinestyle(PS_SOLID, 4); // 设置线型及宽度
+  setlinecolor(BLACK);
+  line(left_boundary, 0.0, left_boundary, SHEIGHT); // 左边界
+  line(right_boundary, 0.0, right_boundary, SHEIGHT); // 右边界
+
+  setlinestyle(PS_DASH, 4); // 设置线型及宽度
+  line(SWIDTH / 2.0, 0.0, SWIDTH / 2.0, SHEIGHT); // 中间的虚线
+}

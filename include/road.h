@@ -51,3 +51,10 @@ public:
   double down_line = 0.0; //斑马线下限
   double disRec = 20.0; //间距
 };
+
+/* --------------------------------- 双车道线道路 --------------------------------- */
+class RoadDoubleLane : public RoadBase { 
+public:
+  RoadDoubleLane(const double& r_width = 200.0);
+  void showRoad() override; //显示道路，重写
+};

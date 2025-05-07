@@ -17,10 +17,10 @@ void CarBase::initCar(const double& pos_x, const double& pos_y, const double& he
         plr = make_unique<Point>(pos_x - car_width / 2, pos_y + car_length / 2, PI + theta0, R0); // 左后角点
         prr = make_unique<Point>(pos_x + car_width / 2, pos_y + car_length / 2, -theta0, R0); // 右后角点
 
-        plf->pointTurn(*plf, heading_theta);
-        prf->pointTurn(*prf, heading_theta);
-        plr->pointTurn(*plr, heading_theta);
-        prr->pointTurn(*prr, heading_theta);
+        plf->pointTurn(*pmid, heading_theta);
+        prf->pointTurn(*pmid, heading_theta);
+        plr->pointTurn(*pmid, heading_theta);
+        prr->pointTurn(*pmid, heading_theta);
 
         updatePmidf();
         updatePmidr();
@@ -78,20 +78,20 @@ void CarBase::initCar(const double& pos_x, const double& pos_y, const double& he
     }
 
     void CarBase::coutInfo() {
-        cout << "pmidr->x = " << pmidr->x << " pmidr->y = " << pmidr->y << "pmidr->Rp" << pmidr->Rp <<
-             "pmidr->thetaP" << pmidr->thetaP << endl;
-        cout << "pmidf->x = " << pmidf->x << " pmidf->y = " << pmidf->y << "pmidf->Rp" << pmidf->Rp <<
-             "pmidf->thetaP" << pmidf->thetaP << endl;
-        cout << "pmid->x = " << pmid->x << " pmid->y = " << pmid->y << "pmid->Rp" << pmid->Rp <<
-             "pmid->thetaP" << pmid->thetaP << endl;
-        cout << "plf->x = " << plf->x << " plf->y = " << plf->y << "plf->Rp" << plf->Rp <<
-             "plf->thetaP" << plf->thetaP << endl;
-        cout << "plr->x = " << plr->x << " plr->y = " << plr->y << "plr->Rp" << plr->Rp <<
-             "plr->thetaP" << plr->thetaP << endl;
-        cout << "prf->x = " << prf->x << " prf->y = " << prf->y << "prf->Rp" << prf->Rp <<
-             "prf->thetaP" << prf->thetaP << endl;
-        cout << "prr->x = " << prr->x << " prr->y = " << prr->y << "prr->Rp" << prr->Rp <<
-             "prr->thetaP" << prr->thetaP << endl;
+        cout << "pmidr->x = " << pmidr->x << " pmidr->y = " << pmidr->y << "pmidr->Rp = " << pmidr->Rp <<
+             " pmidr->thetaP = " << pmidr->thetaP << endl;
+        cout << "pmidf->x = " << pmidf->x << " pmidf->y = " << pmidf->y << "pmidf->Rp = " << pmidf->Rp <<
+             " pmidf->thetaP = " << pmidf->thetaP << endl;
+        cout << "pmid->x = " << pmid->x << " pmid->y = " << pmid->y << "pmid->Rp = " << pmid->Rp <<
+             " pmid->thetaP = " << pmid->thetaP << endl;
+        cout << "plf->x = " << plf->x << " plf->y = " << plf->y << "plf->Rp = " << plf->Rp <<
+             " plf->thetaP = " << plf->thetaP << endl;
+        cout << "plr->x = " << plr->x << " plr->y = " << plr->y << "plr->Rp = " << plr->Rp <<
+             " plr->thetaP = " << plr->thetaP << endl;
+        cout << "prf->x = " << prf->x << " prf->y = " << prf->y << "prf->Rp = " << prf->Rp <<
+             " prf->thetaP = " << prf->thetaP << endl;
+        cout << "prr->x = " << prr->x << " prr->y = " << prr->y << "prr->Rp = " << prr->Rp <<
+             " prr->thetaP = " << prr->thetaP << endl;
         cout << "speed = " << speed << " a = " << a << " delta_theta = " << delta_theta / PI << 
             " delta_theta_rot = " << delta_theta_rot / PI << endl;
     }
@@ -113,6 +113,69 @@ void CarBase::initCar(const double& pos_x, const double& pos_y, const double& he
         prf->pointTurn(*p_center, delta_theta);
         prr->pointTurn(*p_center, delta_theta);
         heading_theta += delta_theta;
+    }
+
+    void CarBase::updateRinRout(const double& R) {
+        Ror = R + car_width / 2.0;
+        Rir = R - car_width / 2.0;
+        Rof = hypot(Ror, car_length); //sqrt(pow(Ror, 2) + pow(car_length, 2));
+        Rif = hypot(Rir, car_length); //sqrt(pow(Rir, 2) + pow(car_length, 2));
+    }
+    void CarBase::updateTurnInfo(const int& turn_state, const double& R){ //更新转向信息
+        double x = 0.0; //转向中心
+        double y = 0.0; //转向中心
+        updateRinRout(R); //更新四个半径
+        cout << "Rof = " << Rof << "  Rif = " << Rif << "  Ror = " << Ror << "  Rir = " << Rir << endl;
+        if (turn_state == TurnDirection::TurnRight) { //右转
+            //计算转向中心坐标
+            x = pmidr->x + R * cos(heading_theta);
+            y = pmidr->y - R * sin(heading_theta); //左转为正 右转为负
+
+            //更新5个点角度和半径
+            pmidr->thetaP = heading_theta + PI;
+            pmidr->Rp = R;
+
+            plr->thetaP = pmidr->thetaP;
+            plr->Rp = Ror;
+
+            prr->thetaP = pmidr->thetaP;
+            prr->Rp = Rir;
+
+            plf->thetaP = pmidr->thetaP - atan(car_length / Ror);
+            plf->Rp = Rof;
+
+            prf->thetaP = pmidr->thetaP - atan(car_length / Rir);
+            prf->Rp = Rif;
+        } else {
+            //计算转向中心坐标
+            x = pmidr->x - R * cos(heading_theta);
+            y = pmidr->y + R * sin(heading_theta); //左转为正 右转为负
+
+            //更新5个点角度和半径
+            pmidr->thetaP = heading_theta;
+            pmidr->Rp = R;
+
+            plr->thetaP = pmidr->thetaP;
+            plr->Rp = Rir;
+
+            prr->thetaP = pmidr->thetaP;
+            prr->Rp = Ror;
+
+            plf->thetaP = pmidr->thetaP + atan(car_length / Rir);
+            plf->Rp = Rif;
+
+            prf->thetaP = pmidr->thetaP + atan(car_length / Ror);
+            prf->Rp = Rof;
+        }
+        cout << "center_turn.x = " << x << "  center_turn.y = " << y << endl;
+
+        //更新转向中心
+        if (p_center) {
+            p_center->x = x;
+            p_center->y = y;
+        } else {
+            p_center = make_unique<Point>(x, y);
+        }
     }
 
     void CarBase::updateXYva() {
