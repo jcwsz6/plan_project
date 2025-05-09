@@ -115,6 +115,14 @@ void CarBase::initCar(const double& pos_x, const double& pos_y, const double& he
         heading_theta += delta_theta;
     }
 
+    void CarBase::carRotationStep() {
+        plf->pointTurn(*pmid, delta_theta_rot);
+        prf->pointTurn(*pmid, delta_theta_rot);
+        plr->pointTurn(*pmid, delta_theta_rot);
+        prr->pointTurn(*pmid, delta_theta_rot);
+        heading_theta += delta_theta_rot;
+    }
+
     void CarBase::updateRinRout(const double& R) {
         Ror = R + car_width / 2.0;
         Rir = R - car_width / 2.0;
@@ -223,6 +231,38 @@ void CarBase::initCar(const double& pos_x, const double& pos_y, const double& he
 
         delta_theta = 0.0; //与转向相关的角速度，角加速度归为0
         delta_theta_rot = 0.0;
+    }
+
+    void CarBase::updateDriftRotInfo() { //更新漂移自转信息
+        pmid->Rp = 0.0;
+        plf->Rp = R0;
+        prf->Rp = R0;
+        plr->Rp = R0;
+        prr->Rp = R0;
+
+        pmid->thetaP = 0.0;
+        double heading_theta_new = normalizeAngle(heading_theta);
+        plf->thetaP = heading_theta_new - theta0 + PI;
+        prf->thetaP = heading_theta_new + theta0;
+        plr->thetaP = prf->thetaP + PI;
+        prr->thetaP = plf->thetaP + PI;
+    }
+
+    void CarBase::updateDriftRotRevInfo(const Point& center) { // 更新漂移自转+公转信息
+        //更新公转中心
+        if (p_center) {
+            p_center->x = center.x;
+            p_center->y = center.y;
+        } else {
+            p_center = make_unique<Point>(center.x, center.y);
+        }
+
+        //更新漂移自转信息
+        updateDriftRotInfo();
+
+        //更新公转信息
+        pmid->Rp = pmid->distanceTo(*p_center);
+        pmid->thetaP = pmid->thetaTo(*p_center);
     }
 
     /* ----------------------------------- 一般车 ---------------------------------- */

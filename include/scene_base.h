@@ -24,6 +24,13 @@ class SceneBase {
     /* ----------------------------------- 转向 ----------------------------------- */
     void carTurn(const int& turn_state, const double& R, const double& total_theta); //转向，已知半径和角度， total_theta为正，为累计转向角度
     void laneChange(const Point& target_point, const int& type, const double& s = 0.0); //变道，单移线或双移线
+
+    /* ----------------------------------- 漂移 ----------------------------------- */
+    void driftStraight(const double& total_s); //直线漂移（自转+直线运动），只考虑指定的位置
+    void driftStraightByTheta(const double& total_theta); //直线漂移（自转+直线运动），只考虑转角
+    void driftTurnByRot(const double& total_theta, const Point& center); //漂移转向（自转+公转），只考虑自转转角
+    void driftTurnByRev(const double& total_theta, const Point& center); //漂移转向（自转+公转），只考虑公转转角
+
   public:
     unique_ptr<RoadBase> road0; //道路父类指针
     unique_ptr<CarBase> car0; //车辆父类指针

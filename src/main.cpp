@@ -30,6 +30,26 @@ bool process(const int& type) { //总过程
       unique_ptr<SceneBase> plan_obj = make_unique<MeetingObs>();
       return plan_obj->planning_process();
     }
+    case PlanType::ParkReverse1Type: {
+      unique_ptr<SceneBase> plan_obj = make_unique<ReverseParking1>();
+      return plan_obj->planning_process();
+    }
+    case PlanType::ParkReverse2Type: {
+      unique_ptr<SceneBase> plan_obj = make_unique<ReverseParking2>();
+      return plan_obj->planning_process();
+    }
+    case PlanType::ParkParallelType: {
+      unique_ptr<SceneBase> plan_obj = make_unique<ParallelParking>();
+      return plan_obj->planning_process();
+    }
+    case PlanType::DriftPointType: {
+      unique_ptr<SceneBase> plan_obj = make_unique<DriftPoint>();
+      return plan_obj->planning_process();
+    }
+    case PlanType::DriftParkType: {
+      unique_ptr<SceneBase> plan_obj = make_unique<DriftParking>();
+      return plan_obj->planning_process();
+    }
     default: {
         break;
     }
@@ -44,7 +64,7 @@ int main()
   setbkcolor(WHITE); //设置背景颜色
   cleardevice(); //清屏
 
-  if (process(PlanType::ObsPassMeetingType)) {
+  if (process(PlanType::DriftParkType)) {
     std::cout << "process success!" << std::endl;
   }
   system("pause");

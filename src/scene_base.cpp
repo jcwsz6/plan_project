@@ -150,3 +150,61 @@ void SceneBase::laneChange(const Point& target_point, const int& type, const dou
 		}
 	}
 }
+
+void SceneBase::driftStraight(const double& total_s) { //直线漂移（自转+直线运动），只考虑指定的位置
+	car0->updateDriftRotInfo();
+	double s = 0.0;
+	while (s < total_s) {
+	  s += fabs(car0->speed);
+		car0->carRotationStep(); //车自转
+		car0->pmid->pointMove(car0->speed_x, car0->speed_y); //车直线运动
+		obsMoveStep();
+		showScene();
+	}
+	car0->coutInfo();
+}
+
+void SceneBase::driftStraightByTheta(const double& total_theta){ //直线漂移（自转+直线运动），只考虑转角
+	car0->updateDriftRotInfo();
+
+	double theta = 0.0;
+	while (theta < total_theta) {
+	  theta += fabs(car0->delta_theta_rot);
+		correctAngleError(car0->delta_theta_rot, theta - total_theta); //修正角度误差
+		car0->carRotationStep(); //车自转
+		car0->pmid->pointMove(car0->speed_x, car0->speed_y); //车直线运动
+		obsMoveStep();
+		showScene();
+	}
+	car0->coutInfo();
+}
+
+void SceneBase::driftTurnByRot(const double& total_theta, const Point& center){ //漂移转向（自转+公转），只考虑自转转角
+	car0->updateDriftRotRevInfo(center);
+
+	double theta = 0.0;
+	while (theta < total_theta) {
+	  theta += fabs(car0->delta_theta_rot);
+		correctAngleError(car0->delta_theta_rot, theta - total_theta); //修正角度误差
+		car0->carRotationStep(); //车自转
+		car0->pmid->pointTurn(center, car0->delta_theta); //横摆中心点绕center公转
+		obsMoveStep();
+		showScene();
+	}
+	car0->coutInfo();
+}
+
+void SceneBase::driftTurnByRev(const double& total_theta, const Point& center){ //漂移转向（自转+公转），只考虑公转转角
+	car0->updateDriftRotRevInfo(center);
+
+	double theta = 0.0;
+	while (theta < total_theta) {
+	  theta += fabs(car0->delta_theta);
+		correctAngleError(car0->delta_theta, theta - total_theta); //修正角度误差
+		car0->carRotationStep(); //车自转
+		car0->pmid->pointTurn(center, car0->delta_theta); //横摆中心点绕center公转
+		obsMoveStep();
+		showScene();
+	}
+	car0->coutInfo();
+}
